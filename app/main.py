@@ -8,8 +8,6 @@ from app.api.orders import router as orders_router
 from app.api.products import router as products_router
 from app.database.base import Base
 from app.database.session import engine
-from app.models.order import Order, OrderItem
-from app.models.product import Product
 
 logger = logging.getLogger("app")
 
