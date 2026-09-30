@@ -18,11 +18,11 @@ jobs:
         env:
           POSTGRES_USER: devops_user
           POSTGRES_PASSWORD: devops_password
-          POSTGRES_DB: order_platform_test
+          POSTGRES_DB: order_platform
         ports:
           - 5433:5432
         options: >-
-          --health-cmd "pg_isready -U devops_user -d order_platform_test"
+          --health-cmd "pg_isready -U devops_user -d order_platform"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
@@ -45,6 +45,29 @@ jobs:
         run: |
           pip install ruff
           ruff check .
+
+      - name: Create order_platform_test database
+        run: |
+          python - <<'PY'
+          import psycopg
+
+          conn = psycopg.connect(
+              host="127.0.0.1",
+              port=5433,
+              dbname="order_platform",
+              user="devops_user",
+              password="devops_password",
+              autocommit=True,
+          )
+          with conn.cursor() as cur:
+              cur.execute(
+                  "SELECT 1 FROM pg_database WHERE datname = %s",
+                  ("order_platform_test",),
+              )
+              if cur.fetchone() is None:
+                  cur.execute("CREATE DATABASE order_platform_test")
+          conn.close()
+          PY
 
       - name: Run tests
         run: |
